@@ -126,9 +126,3 @@ pytest
 ## Deployment
 
 The backend is deployed on AWS EC2
-
-## Contributors
-
-- Chia Hui Yen (huiyenc) - main
-- Mathilda Chen (liyingch)
-- Yiqi Cheng (yiqic2)
