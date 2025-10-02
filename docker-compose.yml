@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: . # Docker 构建上下文是项目根目录
+      dockerfile: docker/backend/Dockerfile # Dockerfile 的路径
+    ports:
+      - "8000:8000"
+    environment:
+      # Use local database instead of RDS
+      - DATABASE_URL=postgresql://uninest_admin:UniNest070809@db:5432/uninest
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+      - ADMIN_SECRET=${ADMIN_SECRET}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+        - VITE_GOOGLE_API_KEY=${VITE_GOOGLE_API_KEY}
+    ports:
+      - "80:80" # 通常前端通过 Nginx 运行在 80 端口
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Local PostgreSQL database for development
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=uninest_admin
+      - POSTGRES_PASSWORD=UniNest070809
+      - POSTGRES_DB=uninest
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
